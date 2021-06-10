@@ -18,6 +18,12 @@ jobs:
         env:
           # This token is provided by Actions, you do not need to create your own token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          # No body: defaults to tag message and body
+          draft: false
+          prerelease: false
       - name: Upload files from upload
         uses: figshare/github-upload-action@v1.1
         with:
