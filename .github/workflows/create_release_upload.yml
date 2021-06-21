@@ -36,14 +36,16 @@ jobs:
           DATA_DIR: 'upload'
       - name: Check on review status
         shell: bash
+        env:
+          AUTH: "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}"
+          URL_STATUS: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}
+          URL_PUBLISH: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}/publish
         run: |
-          fs_status=`curl -X GET -H "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}" \
-          https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }} | \
+          fs_status=`curl -X GET -H $AUTH $URL_STATUS | \
           python3 -c "import sys, json; print(json.load(sys.stdin)['curation_status'])"`
           if [[ $fs_status eq 'approved' ]]
           then
-            curl -X POST -H "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}" \
-                https://api.figshare.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}/publish
+            curl -X POST -H $AUTH $URL_PUBLISH
           else
             echo "Deposit under review, not uploading"
           fi
