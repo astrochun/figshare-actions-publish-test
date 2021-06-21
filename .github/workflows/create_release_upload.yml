@@ -24,7 +24,7 @@ jobs:
           # No body: defaults to tag message and body
           draft: false
           prerelease: false
-      - name: Upload files from upload
+      - name: Upload files to stage instance
         uses: figshare/github-upload-action@v1.1
         with:
           FIGSHARE_TOKEN: ${{ secrets.FIGSHARE_TOKEN }}
