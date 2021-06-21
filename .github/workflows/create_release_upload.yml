@@ -9,6 +9,9 @@ on:
 jobs:
   release-n-upload:
     runs-on: ubuntu-latest
+    env:
+      STAGE_ARTICLE_ID: 7072554
+
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -29,17 +32,18 @@ jobs:
         with:
           FIGSHARE_TOKEN: ${{ secrets.FIGSHARE_TOKEN }}
           FIGSHARE_ENDPOINT: 'https://api.figsh.com/v2'
-          FIGSHARE_ARTICLE_ID: 7072554
+          FIGSHARE_ARTICLE_ID: ${{ env.STAGE_ARTICLE_ID }}
           DATA_DIR: 'upload'
       - name: Check on review status
+        shell: bash
         run: |
           fs_status=`curl -X GET -H "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}" \
-          https://api.figsh.com/v2/account/articles/7072554 | \
+          https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }} | \
           python3 -c "import sys, json; print(json.load(sys.stdin)['curation_status'])"`
           if [[ $fs_status eq 'approved' ]]
           then
             curl -X POST -H "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}" \
-                https://api.figshare.com/v2/account/articles/7072544/publish
+                https://api.figshare.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}/publish
           else
             echo "Deposit under review, not uploading"
           fi
