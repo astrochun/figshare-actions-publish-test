@@ -27,25 +27,33 @@ jobs:
           # No body: defaults to tag message and body
           draft: false
           prerelease: false
+      - name: Check on deposit review status
+        shell: bash
+        env:
+          AUTH: "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}"
+          URL: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}
+        run: |
+          echo "FS_STATUS=$(curl -X GET -H $AUTH $URL |
+            python3 -c \"import sys, json; print(json.load(sys.stdin)['curation_status'])\" >> $GITHUB_ENV
+          echo $FS_STATUS
       - name: Upload files to stage instance
+        if: $FS_STATUS == "approved"
         uses: figshare/github-upload-action@v1.1
         with:
           FIGSHARE_TOKEN: ${{ secrets.FIGSHARE_TOKEN }}
           FIGSHARE_ENDPOINT: 'https://api.figsh.com/v2'
           FIGSHARE_ARTICLE_ID: ${{ env.STAGE_ARTICLE_ID }}
           DATA_DIR: 'upload'
-      - name: Check on review status
+      - name: Submit for publication / curation review
         shell: bash
         env:
           AUTH: "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}"
-          URL_STATUS: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}
           URL_PUBLISH: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}/publish
         run: |
-          fs_status=`curl -X GET -H $AUTH $URL_STATUS | \
-          python3 -c "import sys, json; print(json.load(sys.stdin)['curation_status'])"`
-          if [[ $fs_status eq 'approved' ]]
+          if [[ $FS_STATUS = 'approved' ]]
           then
             curl -X POST -H $AUTH $URL_PUBLISH
           else
             echo "Deposit under review, not uploading"
+            echo "Will need to re-run workflow after current version is published"
           fi
