@@ -33,6 +33,7 @@ jobs:
           AUTH: "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}"
           URL: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}
         run: |
+          echo $URL
           echo "FS_STATUS=$(curl -H ${AUTH} ${URL} | \
             python3 -c "import sys, json; print(json.load(sys.stdin)['curation_status'])")" >> $GITHUB_ENV
           echo $FS_STATUS
