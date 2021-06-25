@@ -27,10 +27,12 @@ jobs:
           # No body: defaults to tag message and body
           draft: false
           prerelease: false
-      - name: Check on deposit review status
+
+      # For stage instance publishing
+      - name: Check on deposit review status on stage
         shell: bash
         env:
-          AUTH: "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}"
+          AUTH: "Authorization: token ${{ secrets.FIGSHARE_STAGE_TOKEN }}"
           URL: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}
         run: |
           echo $URL
@@ -43,15 +45,15 @@ jobs:
         if: ${{ env.FS_STATUS == 'approved' }}
         uses: figshare/github-upload-action@v1.1
         with:
-          FIGSHARE_TOKEN: ${{ secrets.FIGSHARE_TOKEN }}
+          FIGSHARE_TOKEN: ${{ secrets.FIGSHARE_STAGE_TOKEN }}
           FIGSHARE_ENDPOINT: 'https://api.figsh.com/v2'
           FIGSHARE_ARTICLE_ID: ${{ env.STAGE_ARTICLE_ID }}
           DATA_DIR: 'upload'
-      - name: Submit for publication / curation review
+      - name: Submit for publication / curation review on stage
         if: ${{ env.FS_STATUS == 'approved' }}
         shell: bash
         env:
-          AUTH: "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}"
+          AUTH: "Authorization: token ${{ secrets.FIGSHARE_STAGE_TOKEN }}"
           URL_PUBLISH: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}/publish
         run: |
           curl -X POST -H $AUTH $URL_PUBLISH
