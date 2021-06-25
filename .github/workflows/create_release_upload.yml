@@ -34,9 +34,11 @@ jobs:
           URL: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}
         run: |
           echo $URL
-          echo "FS_STATUS=$(curl -H "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}" \
+          echo FS_STATUS<<EOF' >> $GITHUB_ENV
+          curl -H "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}" \
             https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }} | \
             python3 -c "import sys, json; print(json.load(sys.stdin)['curation_status'])")" >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
           echo $FS_STATUS
       - name: Upload files to stage instance
         if: ${{ env.FS_STATUS == 'approved' }}
