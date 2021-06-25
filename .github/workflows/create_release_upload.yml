@@ -48,15 +48,15 @@ jobs:
           FIGSHARE_ARTICLE_ID: ${{ env.STAGE_ARTICLE_ID }}
           DATA_DIR: 'upload'
       - name: Submit for publication / curation review
+        if: ${{ env.FS_STATUS == 'approved' }}
         shell: bash
         env:
           AUTH: "Authorization: token ${{ secrets.FIGSHARE_TOKEN }}"
           URL_PUBLISH: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}/publish
         run: |
-          if [[ $FS_STATUS = 'approved' ]]
-          then
-            curl -X POST -H $AUTH $URL_PUBLISH
-          else
-            echo "Deposit under review, not uploading"
-            echo "Will need to re-run workflow after current version is published"
-          fi
+          curl -X POST -H $AUTH $URL_PUBLISH
+      - if: ${{ env.FS_STATUS != 'approved' }}
+        run: |
+          echo "Deposit under review, not uploading"
+          echo "Will need to re-run workflow after current version is published"
+          exit 1
