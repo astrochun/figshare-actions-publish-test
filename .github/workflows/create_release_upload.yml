@@ -15,18 +15,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          # This token is provided by Actions, you do not need to create your own token
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          # No body: defaults to tag message and body
-          draft: false
-          prerelease: false
 
       # For stage instance publishing
       - name: Check on deposit review status on stage
@@ -62,3 +50,16 @@ jobs:
           echo "Deposit under review, not uploading"
           echo "Will need to re-run workflow after current version is published"
           exit 1
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          # No body: defaults to tag message and body
+          draft: false
+          prerelease: false
