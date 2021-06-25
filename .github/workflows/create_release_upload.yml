@@ -44,7 +44,7 @@ jobs:
           AUTH: "Authorization: token ${{ secrets.FIGSHARE_STAGE_TOKEN }}"
           URL_PUBLISH: https://api.figsh.com/v2/account/articles/${{ env.STAGE_ARTICLE_ID }}/publish
         run: |
-          curl -X POST -H $AUTH $URL_PUBLISH
+          curl -X POST -H "${AUTH}" "${URL_PUBLISH}"
       - if: ${{ env.FS_STATUS != 'approved' }}
         run: |
           echo "Deposit under review, not uploading"
